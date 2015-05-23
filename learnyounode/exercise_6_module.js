@@ -1,27 +1,29 @@
 fs = require('fs');
-expected_extension = process.argv[3];
 
+module.exports = function getFiles(dir, expected_extension, callback) {
 
-module.exports = function getFiles(){
-	fs.readdir(process.argv[2] ,function callback(error, contents){
-		for (var file in contents) {
-			if (filter(contents[file]) === true){
-				console.log(contents[file]);
-			}
-		} 
+	function extension_matches(filename) {
+		var split_name = filename.split('.');
+		if (split_name.length > 1) {
+			var actual_extension = split_name[split_name.length-1];
+			return actual_extension === expected_extension;
+		}
+
+		return false;
+	}
+
+	fs.readdir(dir, function (err, contents) {
+		if (err) {
+			return callback(err);
+		}
+
+		output = contents.filter(extension_matches);
+
+		callback(null, output);
 
 	})
 }
 
 
-function filter(filename){
-	var split_name = filename.split('.');
-	if (split_name.length > 1) {
-		var extension = split_name[split_name.length-1];
-		if (extension === expected_extension) {
-			return true;
-		}
-	}
 
-	return false;
-}
+
